@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div style="text-align: center" ng-app="myApp" ng-controller="myCtrl">
+	<h1>Sample data</h1>
+	<div pageable scroll-distance="3" size="100" next='more(size, page, callback)'>
+		<p ng-show="list.length > 0" ng-repeat="number in list">{{number.no}}</p>
+	</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="ScrollablePage.js"></script>
+<script>
+	var app = angular.module('myApp', ['scrollable-page']);
+	app.factory('dataFactory', function ($http, $timeout) {
+		var factory = {};
+		factory.fetchData = function (size, page, callback) {
+			$timeout(function () {
+				var data = [];
+				var offset = size * page;
+				for (var i = 0; i < size; i++) {
+					data.push({no: offset++});
+				}
+				callback(data);
+			}, 2000);
+		};
+		return factory;
+	});
+	app.controller('myCtrl', function ($scope, dataFactory) {
+		$scope.list = [];
+		$scope.more = function (size, page, callback) {
+			dataFactory.fetchData(size, page, function (data) {
+				$scope.list = $scope.list.concat(data);
+				callback(data.length);
+			})
+		}
+	});
+</script>
+
+</body>
+</html>
+
